@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LouGames</title>
+  <link rel="stylesheet" href="style.css">
+  <style>
+    /* Base Styles */
+    body {
+      margin: 0;
+      font-family: 'Poppins', sans-serif;
+      background-color: #f0f0f0;
+      color: black;
+      transition: background-color 0.3s, color 0.3s;
+    }
+    .dark-mode {
+      background-color: #333;
+      color: white;
+    }
+    .taskbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #333;
+      padding: 10px 20px;
+      color: white;
+    }
+    .taskbar .logo {
+      font-size: 24px;
+      font-weight: bold;
+    }
+    .taskbar .nav {
+      display: flex;
+      gap: 20px;
+      margin-right: 60px;
+    }
+    .taskbar .nav a {
+      color: white;
+      text-decoration: none;
+      font-size: 18px;
+      font-weight: 500;
+      padding: 10px 15px;
+      border-radius: 20px;
+      transition: background-color 0.3s, transform 0.3s;
+    }
+    .taskbar .nav a:hover {
+      background-color: #555;
+    }
+    .taskbar .nav a:active {
+      background-color: #777;
+      transform: scale(0.95);
+    }
+    .login-container {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .login-icon {
+      font-size: 24px;
+      cursor: pointer;
+    }
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 30px;
+      background-color: #333;
+      color: white;
+      border-radius: 5px;
+      padding: 10px;
+      width: 150px;
+    }
+    .dropdown-menu a {
+      display: block;
+      padding: 8px 10px;
+      text-decoration: none;
+      color: white;
+      border-bottom: 1px solid #555;
+    }
+    .dropdown-menu a:hover {
+      background-color: #555;
+    }
+    .dropdown-menu a:last-child {
+      border-bottom: none;
+    }
+    .dropdown-menu.active {
+      display: block;
+    }
+    .mode-toggle {
+      font-size: 24px;
+      cursor: pointer;
+      margin-left: 20px;
+    }
+    /* Forms (Signup / Login) */
+    .signup-form, .login-form {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      width: 300px;
+      text-align: center;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      z-index: 1001;
+    }
+    .signup-form input, .login-form input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+      font-size: 16px;
+      box-sizing: border-box;
+    }
+    .signup-form button, .login-form button {
+      width: 100%;
+      padding: 10px;
+      background-color: #333;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      font-size: 18px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+    .signup-form button:hover, .login-form button:hover {
+      background-color: #555;
+    }
+    /* Sections */
+    section {
+      display: none;
+      padding: 20px;
+      font-size: 18px;
+      line-height: 1.6;
+    }
+    section.active {
+      display: block;
+    }
+    .games-header {
+      text-align: center;
+      margin-top: 20px;
+    }
+    .games-header h1 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+    .games-header input[type="text"] {
+      width: 50%;
+      padding: 10px;
+      font-size: 18px;
+      border-radius: 20px;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 30px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      border-radius: 8px;
+      text-align: center;
+    }
+    .modal.active {
+      display: block;
+    }
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      z-index: 999;
+    }
+    .overlay.active {
+      display: block;
+    }
+    html {
+      scroll-behavior: smooth;
+    }
+    /* Calculator Icon & Modal */
+    .calculator-icon {
+      width: 50px;
+      height: 50px;
+      margin: 20px auto;
+      position: relative;
+      cursor: pointer;
+    }
+    .calculator-icon img {
+      width: 100%;
+      height: 100%;
+    }
+    .calculator-icon .hover-box {
+      display: none;
+      position: absolute;
+      bottom: 100%;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #333;
+      color: #fff;
+      padding: 5px 10px;
+      border-radius: 5px;
+      white-space: nowrap;
+      font-size: 14px;
+    }
+    .calculator-icon:hover .hover-box {
+      display: block;
+    }
+    .calculator-modal {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: white;
+      padding: 20px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+      border-radius: 8px;
+      z-index: 1002;
+      width: 350px;
+      text-align: center;
+    }
+    .calculator-modal.active {
+      display: block;
+    }
+    .close-calculator {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+    }
+    #calc-input {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      font-size: 16px;
+    }
+    #calc-calculate {
+      padding: 10px 20px;
+      font-size: 16px;
+      border: none;
+      background-color: #333;
+      color: white;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    #calc-result {
+      margin-top: 10px;
+      font-size: 18px;
+      font-weight: bold;
+    }
+    /* Calculator Tooltip */
+    .calculator-tooltip {
+      background-color: #f9f9f9;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+      margin-top: 10px;
+      padding: 10px;
+      font-size: 14px;
+      text-align: left;
+    }
+    .calculator-tooltip ul {
+      margin: 5px 0 0 20px;
+      padding: 0;
+    }
+    .calculator-tooltip li {
+      list-style-type: disc;
+      margin-bottom: 4px;
+    }
+    /* Prompt Box */
+    .prompt-box {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      background-color: #f0f0f0;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+      width: 300px;
+      text-align: center;
+      z-index: 1000;
+    }
+    .prompt-box h2 {
+      margin-bottom: 10px;
+      font-size: 18px;
+    }
+    .prompt-box p {
+      margin-bottom: 20px;
+      font-size: 16px;
+    }
+    .prompt-box button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      background-color: #333;
+      color: white;
+      border-radius: 5px;
+    }
+  </style>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+
+  <!-- Taskbar & Navigation -->
+  <div class="taskbar">
+    <div class="logo">LouGames</div>
+    <div class="nav">
+      <a href="#" id="games-link">Games</a>
+      <a href="#" id="about-link">About Us</a>
+      <a href="#" id="recommend-link">Recommend Games</a>
+      <a href="#" id="logout-link" style="display:none;">Logout</a>
+    </div>
+    <div class="login-container">
+      <span class="login-icon" id="login-icon">🔒</span>
+      <div class="dropdown-menu" id="dropdown-menu">
+        <a href="#" id="signup-link">Signup</a>
+        <a href="#" id="login-link">Login</a>
+        <a href="#">More</a>
+      </div>
+      <span id="mode-toggle" class="mode-toggle">☀️</span>
+    </div>
+  </div>
+
+  <div class="overlay" id="overlay"></div>
+
+  <!-- Signup & Login Forms -->
+  <div class="signup-form" id="signup-form">
+    <h2>Signup</h2>
+    <form>
+      <input type="email" placeholder="Email" id="email" required>
+      <input type="password" placeholder="Create Password" id="password" required>
+      <input type="password" placeholder="Confirm Password" id="confirm-password" required>
+      <button type="submit">Create Account</button>
+    </form>
+  </div>
+
+  <div class="login-form" id="login-form">
+    <h2>Login</h2>
+    <form>
+      <input type="email" placeholder="Email" id="login-email" required>
+      <input type="password" placeholder="Password" id="login-password" required>
+      <button type="submit">Login</button>
+    </form>
+  </div>
+
+  <!-- Games Section with Calculator Icon -->
+  <section id="games" class="active">
+    <div class="games-header">
+      <h1>Games</h1>
+      <input type="text" placeholder="Search games...">
+    </div>
+    <!-- Calculator Icon (hover shows a tooltip) -->
+    <div class="calculator-icon" id="calculator-icon">
+      <img src="https://img.icons8.com/fluency-systems-filled/48/000000/calculator.png" alt="Calculator">
+      <div class="hover-box">Calculator</div>
+    </div>
+  </section>
+
+  <section id="about">
+    <div class="modal" id="about-modal">
+      <p>This is developed by Louis F. This website has games to enjoy and pass time during school.</p>
+    </div>
+  </section>
+
+  <section id="recommend">
+    <h1>Recommend Games</h1>
+    <p>Recommend your favorite games to us.</p>
+  </section>
+
+  <!-- Calculator Modal (opens on click of calculator icon) -->
+  <div class="calculator-modal" id="calculator-modal">
+    <span class="close-calculator" id="close-calculator">&times;</span>
+    <h2>Fraction Calculator</h2>
+    <input type="text" id="calc-input" placeholder='Enter expression (e.g., "1 1/2 ÷ 4")'>
+    <button id="calc-calculate">Calculate</button>
+    <div id="calc-result"></div>
+    <!-- Tooltip box showing supported operators -->
+    <div class="calculator-tooltip" id="calculator-tooltip">
+      <p><strong>Operators:</strong></p>
+      <ul>
+        <li>+ : Addition</li>
+        <li>- : Subtraction</li>
+        <li>* : Multiplication</li>
+        <li>÷ : Division (use "÷" for arithmetic division; "/" is for fractions)</li>
+        <li>( ) : Grouping</li>
+        <li>Mixed fractions: e.g., "3 1/2"</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Prompt Box -->
+  <div class="prompt-box" id="prompt-box">
+    <h2>Welcome to LouGames!</h2>
+    <p>To access all the features of the website, please create an account.</p>
+    <button id="okay-button">Okay</button>
+  </div>
+
+  <script>
+    // Navigation, Login & Signup Logic
+    const navLinks = document.querySelectorAll('.nav a');
+    const sections = document.querySelectorAll('section');
+    const aboutModal = document.getElementById('about-modal');
+    const overlay = document.getElementById('overlay');
+
+    const signupForm = document.getElementById('signup-form');
+    const loginForm = document.getElementById('login-form');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    const loginIcon = document.getElementById('login-icon');
+    const signupLink = document.getElementById('signup-link');
+    const loginLink = document.getElementById('login-link');
+    const logoutLink = document.getElementById('logout-link');
+    const gamesLink = document.getElementById('games-link');
+    const aboutLink = document.getElementById('about-link');
+    const recommendLink = document.getElementById('recommend-link');
+    const modeToggle = document.getElementById('mode-toggle');
+    const body = document.body;
+
+    signupForm.style.display = 'none';
+    loginForm.style.display = 'none';
+
+    loginIcon.addEventListener('click', () => {
+      dropdownMenu.classList.toggle('active');
+    });
+
+    signupLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      dropdownMenu.classList.remove('active');
+      signupForm.style.display = 'flex';
+      overlay.classList.add('active');
+    });
+
+    loginLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      dropdownMenu.classList.remove('active');
+      loginForm.style.display = 'flex';
+      overlay.classList.add('active');
+    });
+
+    overlay.addEventListener('click', () => {
+      aboutModal.classList.remove('active');
+      overlay.classList.remove('active');
+      dropdownMenu.classList.remove('active');
+      signupForm.style.display = 'none';
+      loginForm.style.display = 'none';
+      document.getElementById('games').classList.add('active');
+    });
+
+    modeToggle.addEventListener('click', () => {
+      body.classList.toggle('dark-mode');
+      modeToggle.textContent = body.classList.contains('dark-mode') ? '🌙' : '☀️';
+    });
+
+    function validatePassword() {
+      const password = document.getElementById('password');
+      const confirmPassword = document.getElementById('confirm-password');
+      if (password.value === confirmPassword.value) {
+        password.style.borderColor = 'green';
+        confirmPassword.style.borderColor = 'green';
+      } else {
+        password.style.borderColor = 'red';
+        confirmPassword.style.borderColor = 'red';
+      }
+    }
+    document.getElementById('password').addEventListener('input', validatePassword);
+    document.getElementById('confirm-password').addEventListener('input', validatePassword);
+
+    signupForm.querySelector('form').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+      if (password === confirmPassword) {
+        localStorage.setItem('userEmail', email);
+        localStorage.setItem('userPassword', password);
+        alert('Account created successfully!');
+        signupForm.style.display = 'none';
+        overlay.classList.remove('active');
+        updateNav();
+      } else {
+        alert('Passwords do not match!');
+      }
+    });
+
+    loginForm.querySelector('form').addEventListener('submit', function (event) {
+      event.preventDefault();
+      const loginEmail = document.getElementById('login-email').value;
+      const loginPassword = document.getElementById('login-password').value;
+      const storedEmail = localStorage.getItem('userEmail');
+      const storedPassword = localStorage.getItem('userPassword');
+      if (loginEmail === storedEmail && loginPassword === storedPassword) {
+        alert('Login successful!');
+        loginForm.style.display = 'none';
+        overlay.classList.remove('active');
+        updateNav();
+      } else {
+        alert('Invalid login credentials!');
+      }
+    });
+
+    logoutLink.addEventListener('click', () => {
+      localStorage.removeItem('userEmail');
+      localStorage.removeItem('userPassword');
+      alert('You have logged out successfully!');
+      updateNav();
+    });
+
+    function updateNav() {
+      const userEmail = localStorage.getItem('userEmail');
+      if (userEmail) {
+        logoutLink.style.display = 'inline';
+        gamesLink.style.display = 'inline';
+        aboutLink.style.display = 'inline';
+        recommendLink.style.display = 'inline';
+      } else {
+        logoutLink.style.display = 'none';
+        gamesLink.style.display = 'none';
+        aboutLink.style.display = 'none';
+        recommendLink.style.display = 'none';
+      }
+    }
+    updateNav();
+
+    document.getElementById('okay-button').addEventListener('click', function() {
+      document.getElementById('prompt-box').style.display = 'none';
+      overlay.classList.remove('active');
+    });
+    window.onload = function() {
+      document.getElementById('prompt-box').style.display = 'block';
+      overlay.classList.add('active');
+    };
+
+    /* ======================================
+       Calculator Functionality & Fraction Math
+       ====================================== */
+
+    // Fraction arithmetic helper functions
+    function gcd(a, b) {
+      return b ? gcd(b, a % b) : Math.abs(a);
+    }
+    function reduceFraction(frac) {
+      // Ensure the denominator is positive
+      if (frac.den < 0) {
+        frac.num = -frac.num;
+        frac.den = -frac.den;
+      }
+      let g = gcd(frac.num, frac.den);
+      return { num: frac.num / g, den: frac.den / g };
+    }
+    function addFractions(a, b) {
+      let num = a.num * b.den + b.num * a.den;
+      let den = a.den * b.den;
+      return reduceFraction({ num, den });
+    }
+    function subtractFractions(a, b) {
+      let num = a.num * b.den - b.num * a.den;
+      let den = a.den * b.den;
+      return reduceFraction({ num, den });
+    }
+    function multiplyFractions(a, b) {
+      let num = a.num * b.num;
+      let den = a.den * b.den;
+      return reduceFraction({ num, den });
+    }
+    function divideFractions(a, b) {
+      if (b.num === 0) throw "Division by zero";
+      let num = a.num * b.den;
+      let den = a.den * b.num;
+      return reduceFraction({ num, den });
+    }
+    function fractionToString(frac) {
+      frac = reduceFraction(frac);
+      let whole = Math.floor(Math.abs(frac.num) / frac.den);
+      let remainder = Math.abs(frac.num) % frac.den;
+      let sign = frac.num < 0 ? "-" : "";
+      if (remainder === 0) {
+        return sign + whole;
+      } else if (whole === 0) {
+        return sign + frac.num + "/" + frac.den;
+      } else {
+        return sign + whole + " " + remainder + "/" + frac.den;
+      }
+    }
+    // Parse fraction strings (supports mixed fractions like "1 1/2")
+    function parseFraction(str) {
+      str = str.trim();
+      let negative = false;
+      if (str.startsWith('-')) { negative = true; str = str.substring(1); }
+      let parts = str.split(' ');
+      let num, den;
+      if (parts.length === 2) {
+        let whole = parseInt(parts[0]);
+        let fracParts = parts[1].split('/');
+        num = parseInt(fracParts[0]);
+        den = parseInt(fracParts[1]);
+        num = whole * den + num;
+      } else if (str.includes('/')) {
+        let fracParts = str.split('/');
+        num = parseInt(fracParts[0]);
+        den = parseInt(fracParts[1]);
+      } else {
+        num = parseInt(str);
+        den = 1;
+      }
+      if (negative) num = -num;
+      return { num, den };
+    }
+    // Updated tokenize function:
+    // • Inserts spaces around operators except "/" (which remains part of fraction notation)
+    // • Merges whole numbers and adjacent fraction tokens for mixed fractions
+    // • Handles a leading '-' appropriately.
+    function tokenize(expr) {
+      // Insert spaces around operators needed for arithmetic (excluding "/")
+      expr = expr.replace(/([+\*\(÷\)])/g, ' $1 ');
+      let tokens = expr.trim().split(/\s+/);
+      let newTokens = [];
+      for (let i = 0; i < tokens.length; i++) {
+        // Merge a leading '-' with the next token when appropriate.
+        if (
+          tokens[i] === '-' &&
+          (i === 0 || "+-*÷(".includes(tokens[i - 1])) &&
+          i < tokens.length - 1 &&
+          /^\d/.test(tokens[i + 1])
+        ) {
+          newTokens.push('-' + tokens[i + 1]);
+          i++;
+        } 
+        // Merge whole number and fraction part into a mixed fraction.
+        else if (
+          i < tokens.length - 1 &&
+          /^[0-9]+$/.test(tokens[i]) &&
+          /^[0-9]+\/[0-9]+$/.test(tokens[i + 1])
+        ) {
+          newTokens.push(tokens[i] + " " + tokens[i + 1]);
+          i++;
+        } else {
+          newTokens.push(tokens[i]);
+        }
+      }
+      return newTokens;
+    }
+    function isNumberToken(token) {
+      return /^-?\d+( \d+\/\d+|\/\d+)?$/.test(token) || /^-?\d+\/\d+$/.test(token);
+    }
+    function infixToPostfix(tokens) {
+      let outputQueue = [];
+      let precedence = { '+': 1, '-': 1, '*': 2, '÷': 2 };
+      let operatorStack = [];
+      tokens.forEach(token => {
+        if (isNumberToken(token)) {
+          outputQueue.push(token);
+        } else if ("+-*÷".includes(token)) {
+          while (
+            operatorStack.length > 0 &&
+            operatorStack[operatorStack.length - 1] !== "(" &&
+            precedence[operatorStack[operatorStack.length - 1]] >= precedence[token]
+          ) {
+            outputQueue.push(operatorStack.pop());
+          }
+          operatorStack.push(token);
+        } else if (token === "(") {
+          operatorStack.push(token);
+        } else if (token === ")") {
+          while (operatorStack.length > 0 && operatorStack[operatorStack.length - 1] !== "(") {
+            outputQueue.push(operatorStack.pop());
+          }
+          operatorStack.pop();
+        }
+      });
+      while (operatorStack.length > 0) {
+        outputQueue.push(operatorStack.pop());
+      }
+      return outputQueue;
+    }
+    function evaluatePostfix(postfixTokens) {
+      let stack = [];
+      postfixTokens.forEach(token => {
+        if (isNumberToken(token)) {
+          let frac = parseFraction(token);
+          stack.push(frac);
+        } else {
+          let b = stack.pop();
+          let a = stack.pop();
+          let result;
+          switch (token) {
+            case '+': result = addFractions(a, b); break;
+            case '-': result = subtractFractions(a, b); break;
+            case '*': result = multiplyFractions(a, b); break;
+            case '÷': result = divideFractions(a, b); break;
+          }
+          stack.push(result);
+        }
+      });
+      return stack[0];
+    }
+    function evaluateExpression(expr) {
+      try {
+        let tokens = tokenize(expr);
+        let postfix = infixToPostfix(tokens);
+        let result = evaluatePostfix(postfix);
+        return fractionToString(result);
+      } catch (e) {
+        return "Error: " + e;
+      }
+    }
+
+    // Calculator UI Logic
+    const calculatorIcon = document.getElementById('calculator-icon');
+    const calculatorModal = document.getElementById('calculator-modal');
+    const closeCalculator = document.getElementById('close-calculator');
+    const calcCalculate = document.getElementById('calc-calculate');
+    const calcInput = document.getElementById('calc-input');
+    const calcResult = document.getElementById('calc-result');
+
+    calculatorIcon.addEventListener('click', () => {
+      calculatorModal.classList.add('active');
+    });
+    closeCalculator.addEventListener('click', () => {
+      calculatorModal.classList.remove('active');
+    });
+    calcCalculate.addEventListener('click', () => {
+      let expr = calcInput.value;
+      let result = evaluateExpression(expr);
+      calcResult.textContent = result;
+    });
+  </script>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>&copy; 2025 LouGames. All rights reserved.</p>
+  </footer>
+</body>
+</html>
